@@ -19,8 +19,12 @@ public class Item {
 
 
     @ManyToOne
-    @JoinColumn(name = "id_categoria")  // FK no banco
+    @JoinColumn(name = "id_categoria")
     private Categoria categoria;
+
+    @ManyToOne
+    @JoinColumn(name = "id_proprietario")
+    private User proprietario;
 
     @Column(length = 100)
     private String nome_item;

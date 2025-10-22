@@ -35,7 +35,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> postUser(@RequestBody User usuario) {
+    public ResponseEntity<User> cadastrarUser(@RequestBody User usuario) {
         if (usuario.getEnderecos() != null) {
             for (Endereco endereco : usuario.getEnderecos()) {
                 endereco.setUsuario(usuario);

@@ -34,4 +34,6 @@ public class SolicitacaoEmprestimo {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date data_fim;
+
+
 }

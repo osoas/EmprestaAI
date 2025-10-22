@@ -2,6 +2,7 @@ package br.edu.ifce.emprestaai.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 
 
@@ -28,5 +29,8 @@ public class Pagamento {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date data_pagamento = new Date(System.currentTimeMillis());
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal valor;
 
 }

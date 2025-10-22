@@ -44,6 +44,15 @@ public class Emprestimo {
     private FormaPagamento forma_pagamento;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date data_pagamento = new Date(System.currentTimeMillis());
+    private Date data_emprestimo = new Date(System.currentTimeMillis());
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date data_devolucao_prevista;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date data_devoucao_real;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date data_inicio;
 
 }

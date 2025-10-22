@@ -25,27 +25,27 @@ public class ItemController {
 
 
     @GetMapping("/list")
-    private List<Item> getItens() {
+    public List<Item> getItens() {
         return itemRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    private Item getItem(@PathVariable Integer id) {
+    public Item getItem(@PathVariable Integer id) {
         return itemRepository.findById(id).orElse(null);
     }
 
     @PostMapping
-    private Item postItem(@RequestBody Item item) {
+    public Item cadastrarItem(@RequestBody Item item) {
         return itemRepository.save(item);
     }
 
     @PutMapping
-    private Item putItem(@RequestBody Item item) {
+    public Item putItem(@RequestBody Item item) {
         return itemRepository.save(item);
     }
 
     @DeleteMapping("/{id}")
-    private void deleteItem(@PathVariable Integer id) {
+    public void deleteItem(@PathVariable Integer id) {
         itemRepository.deleteById(id);
     }
 }
