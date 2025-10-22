@@ -3,7 +3,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -43,16 +43,12 @@ public class Emprestimo {
     @Enumerated(EnumType.ORDINAL)
     private FormaPagamento forma_pagamento;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date data_emprestimo = new Date(System.currentTimeMillis());
+    private LocalDateTime data_emprestimo = LocalDateTime.now();
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date data_devolucao_prevista;
+    private LocalDateTime data_devolucao_prevista;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date data_devoucao_real;
+    private LocalDateTime data_devoucao_real;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date data_inicio;
+    private LocalDateTime data_inicio;
 
 }

@@ -3,7 +3,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -29,7 +29,6 @@ public class Avaliacao {
 
     private String comentario;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date data_avaliacao = new Date(System.currentTimeMillis());
+    private LocalDateTime data_avaliacao = LocalDateTime.now();
 
 }

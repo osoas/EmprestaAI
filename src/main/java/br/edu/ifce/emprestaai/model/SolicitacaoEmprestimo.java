@@ -2,7 +2,7 @@ package br.edu.ifce.emprestaai.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -26,14 +26,11 @@ public class SolicitacaoEmprestimo {
     @Enumerated(EnumType.ORDINAL)
     private StatusSolicitacao status = StatusSolicitacao.PENDENTE;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date data_solicitacao = new Date(System.currentTimeMillis());
+    private LocalDateTime data_solicitacao = LocalDateTime.now();
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date data_inicio;
+    private LocalDateTime data_inicio;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date data_fim;
+    private LocalDateTime data_fim;
 
 
 }

@@ -3,7 +3,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -27,8 +27,7 @@ public class Pagamento {
     @Enumerated(EnumType.ORDINAL)
     private StatusEmprestimo statusPagamento = StatusEmprestimo.PENDENTE;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date data_pagamento = new Date(System.currentTimeMillis());
+    private LocalDateTime data_pagamento = LocalDateTime.now();
 
     @Column(precision = 10, scale = 2)
     private BigDecimal valor;

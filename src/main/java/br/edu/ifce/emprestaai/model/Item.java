@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -40,6 +40,5 @@ public class Item {
     @Enumerated(EnumType.ORDINAL)
     private StatusDisponibilidade status_disponibilidade = StatusDisponibilidade.DISPONIVEL;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date data_cadastro = new Date(System.currentTimeMillis());
+    private LocalDateTime data_cadastro = LocalDateTime.now();
 }
