@@ -1,4 +1,5 @@
 package br.edu.ifce.emprestaai.model;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,11 +17,12 @@ public class Pagamento {
     @Column(name = "id_pagamento")
     private Integer id;
 
-    @OneToOne
     @JoinColumn(name = "id_emprestimo")
+    @OneToOne
+    @JsonBackReference
     private Emprestimo emprestimo;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "id_usuario")
     private User usuario;
 

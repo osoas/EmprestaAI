@@ -1,10 +1,9 @@
 package br.edu.ifce.emprestaai.controller;
 
-import br.edu.ifce.emprestaai.model.Emprestimo;
-import br.edu.ifce.emprestaai.model.SolicitacaoEmprestimo;
+import br.edu.ifce.emprestaai.model.*;
 
-import br.edu.ifce.emprestaai.model.StatusSolicitacao;
 import br.edu.ifce.emprestaai.repository.EmprestimoRepository;
+import br.edu.ifce.emprestaai.repository.PagamentoRepository;
 import br.edu.ifce.emprestaai.repository.SolicitacaoEmprestimoRepository;
 
 import org.springframework.web.bind.annotation.*;
@@ -16,14 +15,17 @@ import java.util.List;
 public class SolicitacaoEmprestimoController {
 
     private final SolicitacaoEmprestimoRepository solicitacaoAvaliacaoRepository;
-    private final EmprestimoRepository avaliacaoRepository;
+    private final EmprestimoRepository emprestimoRepository;
+    private final PagamentoRepository pagamentoRepository;
 
-    private SolicitacaoEmprestimoController(
+    public SolicitacaoEmprestimoController(
             SolicitacaoEmprestimoRepository solicitacaoAvaliacaoRepository,
-            EmprestimoRepository avaliacaoRepository
+            EmprestimoRepository avaliacaoRepository,
+            PagamentoRepository pagamentoRepository
     ) {
         this.solicitacaoAvaliacaoRepository = solicitacaoAvaliacaoRepository;
-        this.avaliacaoRepository = avaliacaoRepository;
+        this.emprestimoRepository = avaliacaoRepository;
+        this.pagamentoRepository = pagamentoRepository;
     }
 
 
@@ -55,23 +57,40 @@ public class SolicitacaoEmprestimoController {
         return solicitacaoAvaliacaoRepository.save(solicitacaoAvaliacao);
     }
     @PutMapping("/status")
-    public SolicitacaoEmprestimo mudarStatusSolicitacao(@RequestParam Integer id, @RequestParam StatusSolicitacao statusSolicitacao) {
-        SolicitacaoEmprestimo solicitacaoAvaliacao = solicitacaoAvaliacaoRepository.findById(id).orElse(null);
-        if (solicitacaoAvaliacao != null) {
-            solicitacaoAvaliacao.setStatus(statusSolicitacao);
-            if (statusSolicitacao == StatusSolicitacao.APROVADO) {
-                Emprestimo avaliacao = new Emprestimo();
-                avaliacao.setItem(solicitacaoAvaliacao.getItem());
-                avaliacao.setDestinatario(solicitacaoAvaliacao.getUsuario());
-                avaliacao.setRemetente(solicitacaoAvaliacao.getItem().getProprietario());
-                avaliacao.setSolicitacaoEmprestimo(solicitacaoAvaliacao);
-                avaliacao.setData_devolucao_prevista(solicitacaoAvaliacao.getData_fim());
-                avaliacao.setData_inicio(solicitacaoAvaliacao.getData_inicio());
-                avaliacaoRepository.save(avaliacao);
-            }
-            return solicitacaoAvaliacaoRepository.save(solicitacaoAvaliacao);
+    public SolicitacaoEmprestimo mudarStatusSolicitacao(
+            @RequestParam Integer id,
+            @RequestParam StatusSolicitacao statusSolicitacao
+    ) {
+        SolicitacaoEmprestimo solicitacao = solicitacaoAvaliacaoRepository.findById(id).orElse(null);
+
+        if (solicitacao == null) return null;
+
+        solicitacao.setStatus(statusSolicitacao);
+
+        if (statusSolicitacao == StatusSolicitacao.APROVADO) {
+
+            Emprestimo emprestimo = new Emprestimo();
+            emprestimo.setItem(solicitacao.getItem());
+            emprestimo.setDestinatario(solicitacao.getUsuario());
+            emprestimo.setRemetente(solicitacao.getItem().getProprietario());
+            emprestimo.setSolicitacaoEmprestimo(solicitacao);
+            emprestimo.setData_devolucao_prevista(solicitacao.getData_fim());
+            emprestimo.setData_inicio(solicitacao.getData_inicio());
+
+            emprestimoRepository.save(emprestimo);
+
+            Pagamento pagamento = new Pagamento();
+            pagamento.setEmprestimo(emprestimo);
+            pagamento.setStatusPagamento(StatusEmprestimo.PENDENTE);
+            pagamento.setValor(emprestimo.getItem().getValor_unitario());
+            pagamento.setUsuario(emprestimo.getDestinatario());
+            pagamentoRepository.save(pagamento);
+
+            emprestimo.setPagamento(pagamento);
+            emprestimoRepository.save(emprestimo);
         }
-        return null;
+
+        return solicitacaoAvaliacaoRepository.save(solicitacao);
     }
 
     @DeleteMapping("/{id}")

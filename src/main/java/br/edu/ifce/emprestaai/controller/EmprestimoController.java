@@ -21,9 +21,6 @@ public class EmprestimoController {
     }
 
 
-
-
-
     @GetMapping("/list")
     public List<Emprestimo> getItens() {
         return emprestimoRepository.findAll();

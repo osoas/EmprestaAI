@@ -1,4 +1,5 @@
 package br.edu.ifce.emprestaai.model;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -32,8 +33,9 @@ public class Emprestimo {
     @JoinColumn(name = "id_destinatario")
     private User destinatario;
 
-    @ManyToOne
     @JoinColumn(name = "id_pagamento")
+    @OneToOne(mappedBy = "emprestimo")
+    @JsonManagedReference
     private Pagamento pagamento;
 
     @Enumerated(EnumType.ORDINAL)
