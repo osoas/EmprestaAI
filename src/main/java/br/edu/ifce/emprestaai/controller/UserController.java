@@ -13,15 +13,10 @@ import java.util.List;
 @RequestMapping("api/user")
 public class UserController {
 
-
     private final UserRepository userRepository;
-
-    // Construtor para injeção de dependência
     public UserController(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
-
 
     @GetMapping("/list")
     public List<User> getUsers() {
@@ -31,6 +26,7 @@ public class UserController {
     @GetMapping("/{id}")
     public User getUser(@PathVariable Integer id) {
         return userRepository.findById(id).orElse(null);
+
     }
 
     @PostMapping
