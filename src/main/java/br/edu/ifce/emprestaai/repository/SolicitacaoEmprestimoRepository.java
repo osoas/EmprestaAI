@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface SolicitacaoEmprestimoRepository extends JpaRepository<SolicitacaoEmprestimo, Integer> {
-
+    List<SolicitacaoEmprestimo> findByUsuarioId(Integer usuarioId);
+    List<SolicitacaoEmprestimo> findByItemProprietarioId(Integer proprietarioId);
 }

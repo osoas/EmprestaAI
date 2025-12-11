@@ -5,10 +5,16 @@ import br.edu.ifce.emprestaai.model.*;
 import br.edu.ifce.emprestaai.repository.EmprestimoRepository;
 import br.edu.ifce.emprestaai.repository.PagamentoRepository;
 import br.edu.ifce.emprestaai.repository.SolicitacaoEmprestimoRepository;
+import br.edu.ifce.emprestaai.repository.ItemRepository;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/solicitacao")
@@ -17,19 +23,19 @@ public class SolicitacaoEmprestimoController {
     private final SolicitacaoEmprestimoRepository solicitacaoAvaliacaoRepository;
     private final EmprestimoRepository emprestimoRepository;
     private final PagamentoRepository pagamentoRepository;
+    private final ItemRepository itemRepository;
 
     public SolicitacaoEmprestimoController(
             SolicitacaoEmprestimoRepository solicitacaoAvaliacaoRepository,
             EmprestimoRepository avaliacaoRepository,
-            PagamentoRepository pagamentoRepository
+            PagamentoRepository pagamentoRepository,
+            ItemRepository itemRepository
     ) {
         this.solicitacaoAvaliacaoRepository = solicitacaoAvaliacaoRepository;
         this.emprestimoRepository = avaliacaoRepository;
         this.pagamentoRepository = pagamentoRepository;
+        this.itemRepository = itemRepository;
     }
-
-
-    //TODO -> implementar paginamento
 
 
     @GetMapping("/list")
@@ -37,10 +43,15 @@ public class SolicitacaoEmprestimoController {
         return solicitacaoAvaliacaoRepository.findAll();
     }
 
-    //@GetMapping("/list/{id}")
-    //public List<SolicitacaoEmprestimo> getSolicitacoesUser(@PathVariable Integer id) {
-    //    return solicitacaoAvaliacaoRepository.findByUser(id);
-    //}
+    @GetMapping("/user/{userId}")
+    public List<SolicitacaoEmprestimo> getSolicitacoesPorUsuario(@PathVariable Integer userId) {
+        return solicitacaoAvaliacaoRepository.findByUsuarioId(userId);
+    }
+
+    @GetMapping("/owner/{ownerId}")
+    public List<SolicitacaoEmprestimo> getSolicitacoesPorOwner(@PathVariable Integer ownerId) {
+        return solicitacaoAvaliacaoRepository.findByItemProprietarioId(ownerId);
+    }
 
     @GetMapping("/{id}")
     public SolicitacaoEmprestimo getSolicitacao(@PathVariable Integer id) {
@@ -48,8 +59,10 @@ public class SolicitacaoEmprestimoController {
     }
 
     @PostMapping
-    public SolicitacaoEmprestimo psotSolicitacao(@RequestBody SolicitacaoEmprestimo solicitacaoAvaliacao) {
-        return solicitacaoAvaliacaoRepository.save(solicitacaoAvaliacao);
+    public SolicitacaoEmprestimo psotSolicitacao(@RequestBody SolicitacaoEmprestimo solicitacao) {
+        if (solicitacao.getData_solicitacao() == null) solicitacao.setData_solicitacao(LocalDateTime.now());
+        solicitacao.setStatus(StatusSolicitacao.PENDENTE);
+        return solicitacaoAvaliacaoRepository.save(solicitacao);
     }
 
     @PutMapping
@@ -57,15 +70,19 @@ public class SolicitacaoEmprestimoController {
         return solicitacaoAvaliacaoRepository.save(solicitacaoAvaliacao);
     }
     @PutMapping("/status")
-    public SolicitacaoEmprestimo mudarStatusSolicitacao(
+    public ResponseEntity<Map<String, Object>> mudarStatusSolicitacao(
             @RequestParam Integer id,
             @RequestParam StatusSolicitacao statusSolicitacao
     ) {
         SolicitacaoEmprestimo solicitacao = solicitacaoAvaliacaoRepository.findById(id).orElse(null);
 
-        if (solicitacao == null) return null;
+        Map<String, Object> result = new HashMap<>();
+
+        if (solicitacao == null) return ResponseEntity.notFound().build();
 
         solicitacao.setStatus(statusSolicitacao);
+
+        Emprestimo createdEmprestimo = null;
 
         if (statusSolicitacao == StatusSolicitacao.APROVADO) {
 
@@ -77,20 +94,34 @@ public class SolicitacaoEmprestimoController {
             emprestimo.setData_devolucao_prevista(solicitacao.getData_fim());
             emprestimo.setData_inicio(solicitacao.getData_inicio());
 
-            emprestimoRepository.save(emprestimo);
+            createdEmprestimo = emprestimoRepository.save(emprestimo);
 
             Pagamento pagamento = new Pagamento();
-            pagamento.setEmprestimo(emprestimo);
+            pagamento.setEmprestimo(createdEmprestimo);
             pagamento.setStatusPagamento(StatusEmprestimo.PENDENTE);
-            pagamento.setValor(emprestimo.getItem().getValor_unitario());
-            pagamento.setUsuario(emprestimo.getDestinatario());
+            long days = 1;
+            try {
+                if (solicitacao.getData_inicio() != null && solicitacao.getData_fim() != null) {
+                    Duration d = Duration.between(solicitacao.getData_inicio(), solicitacao.getData_fim());
+                    days = Math.max(1, d.toDays());
+                }
+            } catch (Exception e) {
+                days = 1;
+            }
+            pagamento.setValor(createdEmprestimo.getItem().getValor_unitario().multiply(java.math.BigDecimal.valueOf(days)));
+            pagamento.setUsuario(createdEmprestimo.getDestinatario());
             pagamentoRepository.save(pagamento);
 
-            emprestimo.setPagamento(pagamento);
-            emprestimoRepository.save(emprestimo);
+            createdEmprestimo.setPagamento(pagamento);
+            emprestimoRepository.save(createdEmprestimo);
         }
 
-        return solicitacaoAvaliacaoRepository.save(solicitacao);
+        SolicitacaoEmprestimo savedSolicitacao = solicitacaoAvaliacaoRepository.save(solicitacao);
+
+        result.put("solicitacao", savedSolicitacao);
+        if (createdEmprestimo != null) result.put("emprestimo", createdEmprestimo);
+
+        return ResponseEntity.ok(result);
     }
 
     @DeleteMapping("/{id}")

@@ -39,5 +39,8 @@ public class User {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Endereco> enderecos;
+
+    @Column(name = "total_avaliacoes")
+    private Integer totalAvaliacoes = 0;
 }
 

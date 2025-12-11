@@ -3,7 +3,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 
@@ -33,7 +32,6 @@ public class Emprestimo {
     @JoinColumn(name = "id_destinatario")
     private User destinatario;
 
-    @JoinColumn(name = "id_pagamento")
     @OneToOne(mappedBy = "emprestimo")
     @JsonManagedReference
     private Pagamento pagamento;

@@ -26,6 +26,11 @@ public class AvaliacaoController {
         return avaliacaoRepository.findById(id).orElse(null);
     }
 
+    @GetMapping("/item/{itemId}")
+    public List<Avaliacao> getAvaliacoesByItem(@PathVariable Integer itemId) {
+        return avaliacaoRepository.findByEmprestimo_Item_Id(itemId);
+    }
+
     @PostMapping
     public Avaliacao cadastrarAvaliacao(@RequestBody Avaliacao avaliacao) {
         return avaliacaoRepository.save(avaliacao);

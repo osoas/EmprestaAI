@@ -6,6 +6,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/categoria")
+@CrossOrigin(origins = "*")
 public class CategoriaController {
 
 
@@ -17,12 +18,12 @@ public class CategoriaController {
     }
 
     @GetMapping("/list")
-    private List<Categoria> getCategorias() {
+    public List<Categoria> getCategorias() {
         return categoriaRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    private Categoria getEndereco(@PathVariable Integer id) {
+    public Categoria getCategoria(@PathVariable Integer id) {
         return categoriaRepository.findById(id).orElse(null);
     }
 
@@ -32,12 +33,12 @@ public class CategoriaController {
     }
 
     @PutMapping
-    private Categoria putCategoria(@RequestBody Categoria categoria) {
+    public Categoria putCategoria(@RequestBody Categoria categoria) {
         return categoriaRepository.save(categoria);
     }
 
     @DeleteMapping("/{id}")
-    private void deleteCategoria(@PathVariable Integer id) {
+    public void deleteCategoria(@PathVariable Integer id) {
         categoriaRepository.deleteById(id);
     }
 }
